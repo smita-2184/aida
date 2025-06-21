@@ -32,6 +32,7 @@ export default function Budget({ projectData, setProjectData, isEditing }: Budge
   }
 
   const autoBalanceWorkPackages = () => {
+    if (projectData.workPackages.length === 0) return
     const equalBudget = Math.floor(projectData.totalBudget / projectData.workPackages.length)
     const remainder = projectData.totalBudget % projectData.workPackages.length
 
@@ -44,6 +45,7 @@ export default function Budget({ projectData, setProjectData, isEditing }: Budge
   }
 
   const autoBalancePartners = () => {
+    if (projectData.partners.length === 0) return
     const equalBudget = Math.floor(projectData.totalBudget / projectData.partners.length)
     const remainder = projectData.totalBudget % projectData.partners.length
 
@@ -252,7 +254,7 @@ export default function Budget({ projectData, setProjectData, isEditing }: Budge
                 const percentage =
                   projectData.totalBudget > 0 ? ((wp.budget / projectData.totalBudget) * 100).toFixed(1) : "0.0"
                 return (
-                  <div key={wp.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={`${wp.id}-chart`} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <span className="font-medium text-sm">{wp.id}</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">

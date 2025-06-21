@@ -32,6 +32,8 @@ export default function Partners({ projectData, setProjectData, isEditing }: Par
       expertise: ["Expertise Area"],
       leadWPs: [],
       contributionWPs: [],
+      contactPerson: "Contact Person",
+      website: "https://example.com",
     }
     setProjectData({ ...projectData, partners: [...projectData.partners, newPartner] })
   }
@@ -223,6 +225,28 @@ export default function Partners({ projectData, setProjectData, isEditing }: Par
                   </div>
                 </div>
 
+                {/* Contact Information */}
+                <div className="space-y-2">
+                  <div>
+                    <Label className="text-xs">Contact Person</Label>
+                    <Input
+                      value={partner.contactPerson}
+                      onChange={(e) => updatePartner(index, "contactPerson", e.target.value)}
+                      disabled={!isEditing}
+                      className={`text-xs ${isEditing ? "border-blue-300 bg-blue-50" : "border-transparent bg-transparent"}`}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Website</Label>
+                    <Input
+                      value={partner.website}
+                      onChange={(e) => updatePartner(index, "website", e.target.value)}
+                      disabled={!isEditing}
+                      className={`text-xs ${isEditing ? "border-blue-300 bg-blue-50" : "border-transparent bg-transparent"}`}
+                    />
+                  </div>
+                </div>
+
                 {/* Expertise */}
                 <div>
                   <div className="flex justify-between items-center mb-2">
@@ -317,6 +341,8 @@ export default function Partners({ projectData, setProjectData, isEditing }: Par
                   <th className="text-left p-2">Role</th>
                   <th className="text-left p-2">Country</th>
                   <th className="text-left p-2">Budget</th>
+                  <th className="text-left p-2">Contact</th>
+                  <th className="text-left p-2">Website</th>
                   <th className="text-left p-2">Lead WPs</th>
                   <th className="text-left p-2">Contributing WPs</th>
                 </tr>
@@ -332,6 +358,12 @@ export default function Partners({ projectData, setProjectData, isEditing }: Par
                       <td className="p-2">{partner.country}</td>
                       <td className="p-2">
                         €{partner.budget.toLocaleString()} ({percentage}%)
+                      </td>
+                      <td className="p-2 text-xs">{partner.contactPerson}</td>
+                      <td className="p-2">
+                        <a href={partner.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs">
+                          {(partner.website || '').replace(/^https?:\/\//, '')}
+                        </a>
                       </td>
                       <td className="p-2">
                         <div className="flex flex-wrap gap-1">

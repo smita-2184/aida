@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Header from '@/components/header'
+import { AuthProvider } from '@/hooks/use-auth'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'AIDA Project Management',
+  description: 'A dashboard to manage the AIDA project, partners, and work packages.',
   generator: 'v0.dev',
 }
 
@@ -14,7 +16,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AuthProvider>
+          <Header />
+          <main>{children}</main>
+        </AuthProvider>
+      </body>
     </html>
   )
 }
