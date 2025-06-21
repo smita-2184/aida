@@ -19,6 +19,7 @@ import {
   signInWithEmailAndPassword,
   sendSignInLinkToEmail,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from "firebase/auth"
 import { doc, setDoc, serverTimestamp } from "firebase/firestore"
 import { db } from "@/lib/firebase"
@@ -31,14 +32,16 @@ export function Login() {
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
+  const [showPasswordReset, setShowPasswordReset] = useState(false)
   const auth = getAuth()
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setMessage(null)
     try {
       await signInWithEmailAndPassword(auth, email, password)
-      setOpen(false) // Close dialog on success
+      setOpen(false)
     } catch (error: any) {
       setError(error.message)
     }
@@ -47,17 +50,17 @@ export function Login() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setMessage(null)
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
       const user = userCredential.user
-      // Create a user document in Firestore
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         name: name,
         email: user.email,
         createdAt: serverTimestamp(),
       });
-      setOpen(false) // Close dialog on success
+      setOpen(false)
     } catch (error: any) {
       setError(error.message)
     }
@@ -74,7 +77,20 @@ export function Login() {
     try {
       await sendSignInLinkToEmail(auth, emailForLink, actionCodeSettings)
       window.localStorage.setItem('emailForSignIn', emailForLink)
-      setMessage(`A sign-in link has been sent to ${emailForLink}. Please check your inbox.`)
+      setMessage(`A sign-in link has been sent to ${emailForLink}.`)
+    } catch (error: any) {
+      setError(error.message)
+    }
+  }
+  
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setMessage(null)
+    try {
+      await sendPasswordResetEmail(auth, email)
+      setMessage("Password reset email sent! Check your inbox.")
+      setShowPasswordReset(false)
     } catch (error: any) {
       setError(error.message)
     }
@@ -102,35 +118,75 @@ export function Login() {
             <TabsTrigger value="passwordless">Passwordless</TabsTrigger>
           </TabsList>
           <TabsContent value="signin">
-            <form onSubmit={handlePasswordLogin}>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="email-password">Email</Label>
-                  <Input
-                    id="email-password"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="col-span-3"
-                    required
-                  />
+            {showPasswordReset ? (
+              <form onSubmit={handlePasswordReset}>
+                <div className="grid gap-4 py-4">
+                  <p className="text-sm text-muted-foreground">
+                    Enter your email to receive a password reset link.
+                  </p>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="email-reset">Email</Label>
+                    <Input
+                      id="email-reset"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="col-span-3"
-                    required
-                  />
+                <Button type="submit" className="w-full">
+                  Send Reset Link
+                </Button>
+                <Button
+                  variant="link"
+                  className="mt-2 w-full"
+                  onClick={() => setShowPasswordReset(false)}
+                >
+                  Back to Sign In
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={handlePasswordLogin}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="email-password">Email</Label>
+                    <Input
+                      id="email-password"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
-              <Button type="submit" className="w-full">
-                Sign In
-              </Button>
-            </form>
+                <Button type="submit" className="w-full">
+                  Sign In
+                </Button>
+                <div className="mt-4 text-center text-sm">
+                  <Button
+                    variant="link"
+                    className="p-0 h-auto"
+                    onClick={() => setShowPasswordReset(true)}
+                  >
+                    Forgot password?
+                  </Button>
+                </div>
+              </form>
+            )}
           </TabsContent>
           <TabsContent value="signup">
             <form onSubmit={handleSignUp}>
